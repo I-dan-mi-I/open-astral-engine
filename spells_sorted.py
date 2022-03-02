@@ -11,7 +11,7 @@ def spells_distribution(round, spells):
     try:
         dist_round = dist[round-1]
     except:
-        return []
+        return spells
 
     dist_round = dist_round.split('х')
     for dists in dist_round:
