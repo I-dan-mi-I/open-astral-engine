@@ -1,5 +1,4 @@
-from .spells import spells as all_game_spells
-from .spells import get_player_spells_dict
+from .game import AstralGame
 
 __name__ = "OpenAstralEngine"
 __version__ = "not builed yet"

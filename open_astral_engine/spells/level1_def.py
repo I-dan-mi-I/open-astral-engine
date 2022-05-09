@@ -15,6 +15,13 @@ class Level1Def112:
     __mp__ = 3
     __synergy__ = """1. В сочетании с эффектом "Порок сердца" или "Трупный яд" (Эффект на кастере) снимает лимит на усиленное лечение (всегда лечит на +10 вместо 8)"""
 
+    def __init__(self, game, player):
+        self.game = game
+        self.player = player
+
+    def move(self):
+        pass
+
 
 @spells.spell_to_dict
 class Level1Def119:
@@ -24,9 +31,16 @@ class Level1Def119:
     __level__ = 1
     __priority__ = 23
     __distribution_type__ = "d"
-    __type__ = ("directed")
+    __type__ = "directed"
     __mp__ = 3
     __synergy__ = """1. При наличии на цели эффекта "Темная печать" и применении на неё заклинания "Развеивание" накладывает эффект "Снятие" на следующие три раунда, который блокирует наложение положительных эффектов на цель. Печать исчезает."""
+
+    def __init__(self, game, player):
+        self.game = game
+        self.player = player
+
+    def move(self):
+        pass
 
 
 @spells.spell_to_dict
@@ -43,3 +57,9 @@ class Level1Def124:
 2. В сочетании с эффектом "Злобный разум", дает кастеру ману за блокированное заклинание - 1лвл +3мп, 2лвл +6мп, 3лвл +9мп.
 3. В сочетании с эффектом "Анкил" - впитывает атакующее заклинание, дает в раздачу случайное заклинание того же уровня что было заблокировано"""
 
+    def __init__(self, game, player):
+        self.game = game
+        self.player = player
+
+    def move(self):
+        pass

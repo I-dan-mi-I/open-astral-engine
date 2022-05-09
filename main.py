@@ -1,3 +1,10 @@
 import open_astral_engine
 
-print(open_astral_engine.__name__)
+game = open_astral_engine.AstralGame(id=1)
+
+game.append_player("кек")
+game.append_player("лол")
+
+for game_round in game:
+    print(game.game_message)
+    print()
