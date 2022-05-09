@@ -46,11 +46,10 @@ class AstralGame:
             self.players.remove(player)
 
     def get_player_by_name(self, player_name: str):
-        player = list(filter(lambda p: p.name == player_name, self.players))
-        if not player:
-            raise DefunctPlayer
-        else:
-            return player
+        for player in self.players:
+            if player.name == player_name:
+                return player
+        raise DefunctPlayer
 
     def check_all_moved(self):
         return len(self.players) == len(
@@ -104,7 +103,7 @@ class AstralGame:
             for player in self.players:
                 player.new_round()
                 player.effects.act()
-                player.premove()
+                player.before_move_count()
 
             self.round += 1
             self.rounds[self.round] = copy(self)
@@ -120,12 +119,18 @@ class AstralGame:
             self.players.sort(key=lambda player: player.move.__priority__)
 
             for player in self.players:
-                self.game_message += player.move.move() + "\n"
+                if not player.move_cancelation:
+                    self.game_message += player.move.move() + "\n"
+                else:
+                    self.game_message += f"Попытка применения кастером {player.name} заклинания {player.move.__sname__} сорвана\n"
+
+            for player in self.players:
+                player.after_move_count()
 
             self.game_message += "\n"
 
             for player in self.players:
-                self.game_message += f"{player.name} HP: {player.hp} MP: {player.mp}\n"
+                self.game_message += f"{player.name} HP: {player.hp} MP: {player.mp}. {player.effects.effects_names_sorted_by_fluttering()}\n"
 
             self.game_message += "\n"
 
@@ -135,8 +140,9 @@ class AstralGame:
             self.game_message += f"Начало раунда №{self.round}"
 
             for player in self.players:
+                player.effects.remove_expired()
                 player.new_round()
                 player.effects.act()
-                player.premove()
+                player.before_move_count()
 
             return self

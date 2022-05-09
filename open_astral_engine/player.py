@@ -29,6 +29,8 @@ class AstralPlayer:
         self.moved: bool = False
         self.move_ability: bool = True
 
+        self.move_cancelation: bool = False
+
         # ограничение хп, мп
         self.max_hp: int = max_hp
         self.max_mp: int = max_mp
@@ -51,10 +53,14 @@ class AstralPlayer:
         # параметры раунда:
         self.main_mp_regeneration: int = 0
         self.additional_mp_regeneration: int = 0
+        self.spell_mp_regeneration: int = 0
         self.mp_loss: int = 0
+        self.mp_loss_multiplier: float = 1.0
+        self.mp_loss_additional: int = 0
         self.main_damage: int = 0
         self.damage_over_time: int = 0
-        self.heal: int = 0
+        self.effect_heal: int = 0
+        self.spell_heal: int = 0
         self.armor: int = 0
 
     def kick(self):
@@ -82,7 +88,10 @@ class AstralPlayer:
                 self.main_mp_regeneration += 3
 
         self.additional_mp_regeneration: int = 0
+        self.spell_mp_regeneration: int = 0
         self.mp_loss: int = 0
+        self.mp_loss_multiplier: float = 1.0
+        self.mp_loss_additional: int = 0
         self.main_damage: int = 0
         self.damage_over_time: int = 0
         self.heal: int = 0
@@ -95,7 +104,16 @@ class AstralPlayer:
                 if direction is not None
                 else None
             )
+
             spell = self.spells[spell_name]
+
+            if len(self.game.players) == 2 and another_player is None:
+                if 'ally' in spell.__type__:
+                    another_player = self
+                elif 'enemy' in spell.__type__:
+                    for team in list(self.game.teams.keys()):
+                        if team != self.team:
+                            another_player = self.game.teams[team][0]
 
             self.move = spell
             self.move_direction = another_player
@@ -104,49 +122,26 @@ class AstralPlayer:
             raise NoAbilityToMove
 
     def checker(self, spell_name, direction=None) -> None:
-        effects = self.effects.effects_names()
-        if list(set(["Фанатизм", "Воля Титана", "Сфера пустоты"] & effects)):
-            return None
-        elif "Корни" in effects:
-            if not self.moved and self.move_ability:
-                if spell_name not in list(self.spells.keys()):
-                    raise NonDictionarySpell
-                else:
-                    if self.spells[spell_name].__mp__ + 2 > self.mp:
-                        raise NotEnoughMpToMove
+        if not self.moved and self.move_ability:
+            if spell_name not in list(self.spells.keys()):
+                raise NonDictionarySpell
             else:
-                raise NoAbilityToMove
-        elif "Контроль энергии" in effects:
-            if not self.moved and self.move_ability:
-                if spell_name not in list(self.spells.keys()):
-                    raise NonDictionarySpell
-                else:
-                    if floor(self.spells[spell_name].__mp__ // 2) > self.mp:
-                        raise NotEnoughMpToMove
-
-            else:
-                raise NoAbilityToMove
-        else:
-            if not self.moved and self.move_ability:
-                if spell_name not in list(self.spells.keys()):
-                    raise NonDictionarySpell
-                else:
-                    if self.spells[spell_name].__mp__ > self.mp:
-                        raise NotEnoughMpToMove
-                    elif "direction" in list(self.spells[spell_name].__type__) and (
-                        not list(
-                            set(self.spells[spell_name].__type__) & set("enemy", "ally")
-                        )
-                        or len(self.game.players) > 2
-                    ):
-                        if direction is None:
-                            raise SpellNeedDirection
-                        else:
-                            return self.checker_direction(spell_name, direction)
+                if (floor(self.mp_loss * self.mp_loss_multiplier) + self.mp_loss_additional) > self.mp:
+                    raise NotEnoughMpToMove
+                elif "direction" in list(self.spells[spell_name].__type__) and (
+                    not list(
+                        set(self.spells[spell_name].__type__) & set(["enemy", "ally"])
+                    )
+                    or len(self.game.players) > 2
+                ):
+                    if direction is None:
+                        raise SpellNeedDirection
                     else:
-                        return None
-            else:
-                raise NoAbilityToMove
+                        return self.checker_direction(spell_name, direction)
+                else:
+                    return None
+        else:
+            raise NoAbilityToMove
 
     def checker_direction(self, spell_name, direction) -> None:
         another_player: AstralPlayer = self.game.get_player_by_name(direction)
@@ -163,12 +158,26 @@ class AstralPlayer:
             else:
                 raise SpecifiedPlayerIsDead
 
-    def premove(self):
+    def before_move_count(self):
         self.mp = (
             self.mp
             + self.main_mp_regeneration
             + self.additional_mp_regeneration
-            - self.mp_loss
+
+        )
+        if self.mp > self.max_mp:
+            self.mp = self.max_mp
+
+        self.hp = self.hp+ self.effect_heal
+        if self.hp > self.max_hp:
+            self.hp = self.max_hp
+
+    def after_move_count(self):
+        self.mp = (
+                self.mp
+                + self.spell_mp_regeneration
+                - (floor(self.mp_loss * self.mp_loss_multiplier) + self.mp_loss_additional)
+
         )
         if self.mp > self.max_mp:
             self.mp = self.max_mp
@@ -176,6 +185,7 @@ class AstralPlayer:
         damage = self.main_damage + self.damage_over_time - self.armor
         if damage < 0:
             damage = 0
-        self.hp = self.hp - damage + self.heal
+        self.hp = self.hp - damage + self.spell_heal
         if self.hp > self.max_hp:
             self.hp = self.max_hp
+

@@ -29,5 +29,44 @@ class Level1Attack11:
         self.game = game
         self.player = player
 
-    def move(self):
-        pass
+    def move(self, target=None):
+        caster_effects = self.player.effects.effects_names()
+        if target is None:
+            target = self.player.move_direction
+        target_effects = target.effects.effects_names()
+
+        arrow_name = "Огненную"
+        arrow_damage = 6
+
+        if self == target:
+            target_name = "себе"
+        else:
+            target_name = target.name
+
+        if list(set(caster_effects) & {"Злобный разум", "Астральный паразит"}):
+            arrow_name = "Ментальную"
+            #target.effects.give_effect("Сжигание энергии", 1)
+        elif list(set(caster_effects) & {"Кровосток", "Кровотечение"}):
+            arrow_name = "Зазубренную"
+            arrow_damage = 7
+            #target.effects.give_effect("Кровотечеие", 99)
+        elif list(set(caster_effects) & {"Ядовитый плевок", "Трупный яд"}):
+            arrow_name = "Отравленную"
+            arrow_damage = 7
+            #target.effects.give_effect("Трупный яд", 99)
+        elif list(set(caster_effects) & {"Ледяной укус", "Обморожение"}):
+            arrow_name = "Ледяную"
+            arrow_damage = 0
+            #target.effects.give_effect("Обморожение", 99)
+        else:
+            target.effects.give_effect("Горение✶2", 1)
+
+        target.main_damage = arrow_damage
+
+        if list(set(target_effects) & {"Каменный еж", "Огонек", "Висп"}) and arrow_damage != 0:
+            counter_move = target.spells.all_spells['11'](self.game, target)
+            counter_move(self.player)
+
+        return f"{self.player.name} выпускает {arrow_name} стрелу по {target_name} (№11)"
+
+

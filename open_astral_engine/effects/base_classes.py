@@ -31,6 +31,24 @@ class EffectsDict(dict):
         """Returns available effects name"""
         return [self[item].__ename__ for item in self]
 
+    def effects_names_sorted_by_fluttering(self) -> str:
+        """Returns available effects name"""
+        fluttering_effects = [self[item] if self[item].__fluttering__ else None for item in self]
+        non_fluttering_effects = [self[item] if not self[item].__fluttering__ else None for item in self]
+
+        def remove_none(massive: list):
+            while True:
+                try:
+                    massive.remove(None)
+                except ValueError:
+                    return massive
+
+        fluttering_effects, non_fluttering_effects = map(remove_none, (fluttering_effects, non_fluttering_effects))
+
+        effects_str = ', '.join(effect.__ename__ for effect in fluttering_effects) + ("\nНеразвеиваемые: " if len(non_fluttering_effects) != 0 else '') + ', '.join(effect.__ename__ for effect in non_fluttering_effects)
+
+        return effects_str
+
     def effects_buff(self) -> list:
         """Returns available buff effects name"""
         return list(filter(lambda key: self[key].__type__ == "buff", self.keys()))
@@ -52,13 +70,14 @@ class EffectsDict(dict):
         else:
             if duration < 0:
                 raise NegativeNumberOfRounds
-            self[effect_name] = self.all_effects[effect_name]()
+            self[effect_name] = self.all_effects[effect_name](self.game, self.player)
             self[effect_name].__duration__ = duration
 
     def act(self) -> None:
         """Show effect effects"""
-        for key in self.keys():
-            self[key].act(game=self.game, player=self.player)
+        if self.player.hp > 0:
+            for key in self.keys():
+                self[key].act()
 
     def remove_expired(self) -> None:
         """Removes expired effects"""

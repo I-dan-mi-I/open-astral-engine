@@ -50,13 +50,20 @@ class SpellsDict(dict):
 
     def convert_to_player(self) -> None:
         """Convert dict to Player Spells dict"""
-        if not list(set(["11", "112", "119", "124"]) & set(self.keys())):
+        if not list({"11", "112", "119", "124"} & set(self.keys())):
             raise AnUnfinishedDictionary
         self.all_spells = self.copy_as_spellclass()
         self.isPlayer = True
         self.clear()
         for spell in ["11", "112", "119", "124"]:
             self[spell] = self.all_spells[spell](self.game, self.player)
+
+    def give_spell(self, spell_name) -> None:
+        """Add spell to user"""
+        if not self.isPlayer:
+            raise NotPlayerSpellsDict
+        else:
+            self[spell_name] = self.all_spells[spell_name]()
 
     def distribute_spells(self, rule: str) -> None:
         """Add spell according to given rule"""

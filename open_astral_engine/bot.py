@@ -20,6 +20,8 @@ class AstralBot:
         self.moved: bool = True
         self.move_ability: bool = True
 
+        self.move_cancelation: bool = False
+
         # ограничение хп, мп
         self.max_hp: int = max_hp
         self.max_mp: int = max_mp
@@ -42,6 +44,8 @@ class AstralBot:
         self.main_mp_regeneration: int = 0
         self.additional_mp_regeneration: int = 0
         self.mp_loss: int = 0
+        self.mp_loss_multiplier: float = 1.0
+        self.mp_loss_additional: int = 0
         self.main_damage: int = 0
         self.damage_over_time: int = 0
         self.heal: int = 0
@@ -69,6 +73,8 @@ class AstralBot:
 
         self.additional_mp_regeneration: int = 0
         self.mp_loss: int = 0
+        self.mp_loss_multiplier: float = 1.0
+        self.mp_loss_additional: int = 0
         self.main_damage: int = 0
         self.damage_over_time: int = 0
         self.heal: int = 0
@@ -79,8 +85,7 @@ class AstralBot:
             self.mp
             + self.main_mp_regeneration
             + self.additional_mp_regeneration
-            - self.mp_loss
-            - self.mp_spend
+            - (self.mp_loss*self.mp_loss_multiplier+self.mp_loss_additional)
         )
         if self.mp > self.max_mp:
             self.mp = self.max_mp
