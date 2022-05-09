@@ -46,19 +46,19 @@ class Level1Attack11:
 
         if list(set(caster_effects) & {"Злобный разум", "Астральный паразит"}):
             arrow_name = "Ментальную"
-            #target.effects.give_effect("Сжигание энергии", 1)
+            # target.effects.give_effect("Сжигание энергии", 1)
         elif list(set(caster_effects) & {"Кровосток", "Кровотечение"}):
             arrow_name = "Зазубренную"
             arrow_damage = 7
-            #target.effects.give_effect("Кровотечеие", 99)
+            # target.effects.give_effect("Кровотечеие", 99)
         elif list(set(caster_effects) & {"Ядовитый плевок", "Трупный яд"}):
             arrow_name = "Отравленную"
             arrow_damage = 7
-            #target.effects.give_effect("Трупный яд", 99)
+            # target.effects.give_effect("Трупный яд", 99)
         elif list(set(caster_effects) & {"Ледяной укус", "Обморожение"}):
             arrow_name = "Ледяную"
             arrow_damage = 0
-            #target.effects.give_effect("Обморожение", 99)
+            # target.effects.give_effect("Обморожение", 99)
         else:
             target.effects.give_effect("Горение✶2", 1)
 
@@ -69,6 +69,6 @@ class Level1Attack11:
             counter_move = target.spells.all_spells['11'](self.game, target)
             counter_move(self.player)
 
+        self.player.spells.remove(self)
+
         return f"{self.player.name} выпускает {arrow_name} стрелу по {target_name} (№11)"
-
-

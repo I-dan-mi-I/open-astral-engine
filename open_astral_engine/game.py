@@ -5,8 +5,11 @@ from copy import copy
 from .spells import Level0Skip
 from .team import *
 
+# Used teams names that can be changed.
 team_colors = ["Красная", "Оранжевая", "Желтая", "Зеленая", "Синяя", "Фиолетовая"]
 
+# Spell distribution rules for each round.
+# {spell.__level__}{spell.__distribution_type__}
 distribute_rules = [
     "",
     "",
@@ -43,7 +46,14 @@ distribute_rules = [
 
 
 class AstralGame:
-    """Astral Game class"""
+    """Astral Game class
+
+    Ways of interaction:
+    1) Iteration (for example, through a for loop)
+    2) Using AstralGame.start and AstralGame.step methods
+
+    After the end of the game, both methods will return a StopIteration Exception,
+    but access to the game object will not be closed."""
 
     def __init__(self, id: int = 0):
         self.id = id
@@ -60,6 +70,7 @@ class AstralGame:
         self.game_message: str = ""
 
     def append_player(self, name: str):
+
         player = list(filter(lambda p: p.name == name, self.players))
         if not player:
             self.players.append(AstralPlayer(self, name))
@@ -117,7 +128,7 @@ class AstralGame:
                         self.teams[team] = AstralTeam(team)
 
                     self.teams[team].append(player)
-                    player.team = team
+                    player.team = self.teams[team]
                     count += 1
             else:
                 teams_iterator = iter(team_colors)
@@ -155,7 +166,7 @@ class AstralGame:
                     if player.move is None:
                         player.move = Level0Skip(self, player)
 
-            self.players.sort(key=lambda player: player.move.__priority__)
+            self.players.sort(key=lambda player: player.move.__priority__, reverse=True)
 
             for player in self.players:
                 if player.hp > 0:

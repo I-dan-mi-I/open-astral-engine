@@ -5,10 +5,12 @@ class AstralTeam(list):
         super().__init__()
         self.color = color
 
-    def check_all_dead(self):
+    def check_all_dead(self) -> bool:
+        """Checks if team members are dead."""
         return len(self) == list(filter(lambda player: player.hp <= 0, self))
 
     def get_players_names(self) -> str:
+        """Returns a string with the names of the members."""
         return ', '.join(player.name for player in self)
 
 

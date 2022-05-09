@@ -9,9 +9,12 @@ from .base_exceptions import (
 from .spells import get_player_spells_dict
 from .effects import get_player_effects_dict
 from math import floor
+from .team import AstralTeam
 
 
 class AstralPlayer:
+    """Astral Player class"""
+
     def __init__(
         self,
         game,
@@ -21,9 +24,9 @@ class AstralPlayer:
         max_hp: int = 30,
         max_mp: int = 40,
     ):
-        # идентификационные данные
+        # user identification data
         self.name: str = name
-        self.team: str = ""
+        self.team: AstralTeam = None
 
         self.bot: bool = False
         self.moved: bool = False
@@ -31,26 +34,26 @@ class AstralPlayer:
 
         self.move_cancelation: bool = False
 
-        # ограничение хп, мп
+        # HP and MP limits
         self.max_hp: int = max_hp
         self.max_mp: int = max_mp
 
-        # текущие параметры
+        # current hp and mp
         self.hp: int = hp
         self.mp: int = mp
 
-        # спеллы и эффекты
+        # spells and effects
         self.spells = get_player_spells_dict(game, self)
         self.effects = get_player_effects_dict(game, self)
 
-        # параметры игры
+        # game object
         self.game = game
 
-        # параметры хода
+        # move params
         self.move = None
         self.move_direction = None
 
-        # параметры раунда:
+        # round params
         self.main_mp_regeneration: int = 0
         self.additional_mp_regeneration: int = 0
         self.spell_mp_regeneration: int = 0
@@ -64,9 +67,11 @@ class AstralPlayer:
         self.armor: int = 0
 
     def kick(self):
+        """Removes a user from the current game"""
         self.game.players.remove(self)
 
     def new_round(self):
+        """Clears the current params"""
         if self.hp > 0:
             self.moved: bool = False
             self.move_ability: bool = True
@@ -74,11 +79,9 @@ class AstralPlayer:
             self.moved: bool = True
             self.move_ability: bool = False
 
-        # параметры хода
         self.move = None
         self.move_direction = None
 
-        # параметры раунда:
         if self.hp > 0:
             if 1 < self.game.round <= 5:
                 self.main_mp_regeneration += 1
@@ -94,10 +97,13 @@ class AstralPlayer:
         self.mp_loss_additional: int = 0
         self.main_damage: int = 0
         self.damage_over_time: int = 0
-        self.heal: int = 0
+        self.effect_heal: int = 0
+        self.spell_heal: int = 0
         self.armor: int = 0
 
     def set_move(self, spell_name, direction=None) -> None:
+        """Sets the current spell and direction of the caster.
+        If the spell explicitly reflects the direction of the move, then it is not required."""
         if not self.moved and self.move_ability:
             another_player = (
                 self.game.get_player_by_name(direction)
@@ -122,32 +128,36 @@ class AstralPlayer:
             raise NoAbilityToMove
 
     def checker(self, spell_name, direction=None) -> None:
+        """Checks if a spell can be used.
+        If everything is fine, it returns nothing, otherwise it will trigger an error."""
         if not self.moved and self.move_ability:
             if spell_name not in list(self.spells.keys()):
                 raise NonDictionarySpell
             else:
-                if (floor(self.mp_loss * self.mp_loss_multiplier) + self.mp_loss_additional) > self.mp:
+                if ((floor(self.mp_loss * self.mp_loss_multiplier) + self.mp_loss_additional) if self.mp_loss != 0 else 0) > self.mp:
                     raise NotEnoughMpToMove
                 elif "direction" in list(self.spells[spell_name].__type__) and (
                     not list(
-                        set(self.spells[spell_name].__type__) & set(["enemy", "ally"])
+                        set(self.spells[spell_name].__type__) & {"enemy", "ally"}
                     )
                     or len(self.game.players) > 2
                 ):
                     if direction is None:
                         raise SpellNeedDirection
                     else:
-                        return self.checker_direction(spell_name, direction)
+                        return self.__checker_direction(spell_name, direction)
                 else:
                     return None
         else:
             raise NoAbilityToMove
 
-    def checker_direction(self, spell_name, direction) -> None:
+    def __checker_direction(self, spell_name, direction) -> None:
+        """Checks the direction of the spell for spells without explicitly specifying it,
+        or if there are more than 2 players."""
         another_player: AstralPlayer = self.game.get_player_by_name(direction)
         spell = self.spells[spell_name]
 
-        if list(set(["enemy", "ally"]) & set(spell.__type__)):
+        if list({"enemy", "ally"} & set(spell.__type__)):
             if self.team != another_player.team:
                 return None
             else:
@@ -159,6 +169,7 @@ class AstralPlayer:
                 raise SpecifiedPlayerIsDead
 
     def before_move_count(self):
+        """Calculates the influence of natural processes and the influence of effects."""
         self.mp = (
             self.mp
             + self.main_mp_regeneration
@@ -168,15 +179,16 @@ class AstralPlayer:
         if self.mp > self.max_mp:
             self.mp = self.max_mp
 
-        self.hp = self.hp+ self.effect_heal
+        self.hp = self.hp + self.effect_heal
         if self.hp > self.max_hp:
             self.hp = self.max_hp
 
     def after_move_count(self):
+        """Calculates the impact of player actions."""
         self.mp = (
                 self.mp
                 + self.spell_mp_regeneration
-                - (floor(self.mp_loss * self.mp_loss_multiplier) + self.mp_loss_additional)
+                - (floor(self.mp_loss * self.mp_loss_multiplier) + self.mp_loss_additional) if self.mp_loss != 0 else 0
 
         )
         if self.mp > self.max_mp:
@@ -188,4 +200,3 @@ class AstralPlayer:
         self.hp = self.hp - damage + self.spell_heal
         if self.hp > self.max_hp:
             self.hp = self.max_hp
-

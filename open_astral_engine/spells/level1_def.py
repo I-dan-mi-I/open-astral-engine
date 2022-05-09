@@ -19,7 +19,7 @@ class Level1Def112:
         self.game = game
         self.player = player
 
-    def move(self):
+    def move(self, target=None):
         pass
 
 
@@ -39,7 +39,7 @@ class Level1Def119:
         self.game = game
         self.player = player
 
-    def move(self):
+    def move(self, target=None):
         pass
 
 
@@ -61,5 +61,5 @@ class Level1Def124:
         self.game = game
         self.player = player
 
-    def move(self):
+    def move(self, target=None):
         pass
