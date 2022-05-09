@@ -4,7 +4,7 @@ from .base_classes import EffectsDict
 effects = EffectsDict()
 
 
-@effects.effect_to_dict
+@effects.append
 class DebuffExample:
 
     __ename__ = "Название Дебафф"
@@ -12,6 +12,7 @@ class DebuffExample:
     __fluttering__ = False
     __event__ = False
     __duration__ = 0
+    __eindex__ = -1
     __type__ = "debuff"
     __synergy__ = """Синергии"""
 
@@ -22,14 +23,16 @@ class DebuffExample:
     def act(self):
         pass
 
-@effects.effect_to_dict
-class DebuffCombustion2:
 
-    __ename__ = "Горение✶2"
-    __description__ = """Кастер получает периодический урон, равный 2"""
+@effects.append
+class DebuffCombustion:
+
+    __ename__ = "Горение"
+    __description__ = """Кастер получает периодический урон, равный индексу"""
     __fluttering__ = True
     __event__ = False
     __duration__ = 0
+    __eindex__ = 0
     __type__ = "debuff"
     __synergy__ = """1. В сочетании с заклинанием "Порыв ветра" дает эффект "Горение" на следущий раунд (-2хп)                                 
 2. В сочетании с заклинанием "Ярость дракона" усиливает пламя "Пеклом 3х"                                                  

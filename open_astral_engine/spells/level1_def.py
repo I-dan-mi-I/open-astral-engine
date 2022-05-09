@@ -3,7 +3,7 @@ from .base_classes import SpellsDict
 spells = SpellsDict()
 
 
-@spells.spell_to_dict
+@spells.append
 class Level1Def112:
     __sname__ = "Лечение"
     __description__ = """Накладывает на цель развеиваемый эффект "Лечение"  (+ 8 ед. хп , если запас текущего здоровья 10хп или меньше  то лечит +10хп) , действует в  текущем раунде"""
@@ -23,7 +23,7 @@ class Level1Def112:
         pass
 
 
-@spells.spell_to_dict
+@spells.append
 class Level1Def119:
     __sname__ = "Развеивание"
     __description__ = """Чистка. Снимает с цели бафы, дебафы, периодический урон, действует на текущем ходу, блокирует возможность наложить дебаф или баф на цель в текущем ходу"""
@@ -43,7 +43,7 @@ class Level1Def119:
         pass
 
 
-@spells.spell_to_dict
+@spells.append
 class Level1Def124:
     __sname__ = "Магический щит"
     __description__ = """Блокирует применяемую на цель  магию одиночного действия на 1 ход. (заклинания направленные на 1 цель, к примеру №11, 12, 14 ) Не блокирует массовые заклинания. действует в текущем ходу"""

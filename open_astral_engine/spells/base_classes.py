@@ -15,13 +15,13 @@ class SpellsDict(dict):
         self.player = None
         self.game = None
 
-    def copy_as_spellclass(self):
+    def copy(self):
         """Create copy of SpellsDict class with object data"""
         obj = SpellsDict()
-        obj.update(self.copy())
+        obj.update(super().copy())
         return obj
 
-    def spell_to_dict(self, spell) -> None:
+    def append(self, spell) -> None:
         """Class decorator for adding spells"""
         try:
             self[spell.__number__] = spell
@@ -52,7 +52,7 @@ class SpellsDict(dict):
         """Convert dict to Player Spells dict"""
         if not list({"11", "112", "119", "124"} & set(self.keys())):
             raise AnUnfinishedDictionary
-        self.all_spells = self.copy_as_spellclass()
+        self.all_spells = self.copy()
         self.isPlayer = True
         self.clear()
         for spell in ["11", "112", "119", "124"]:
@@ -70,7 +70,7 @@ class SpellsDict(dict):
         if not self.isPlayer:
             raise NotPlayerSpellsDict
         else:
-            rules = rule.strip().split("x")
+            rules = rule.strip().split("х")
             for rule in rules:
                 rule_lower = rule.lower()
                 if len(rule_lower) == 2:

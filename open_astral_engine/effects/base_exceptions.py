@@ -13,3 +13,24 @@ class NegativeNumberOfRounds(Exception):
         super().__init__(
             "You are trying to apply the effect on a negative number of rounds."
         )
+
+
+class NegativeEffectIndex(Exception):
+    def __init__(self):
+        super().__init__(
+            "You are trying to apply the effect with a negative index."
+        )
+
+
+class IncorrectIndexedEffectRequest(Exception):
+    def __init__(self):
+        super().__init__(
+            "Error in building indexed effect."
+        )
+
+
+class IncorrectEffectRequest(Exception):
+    def __init__(self):
+        super().__init__(
+            "Error in building effect."
+        )

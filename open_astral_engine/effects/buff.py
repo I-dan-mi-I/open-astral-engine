@@ -3,7 +3,7 @@ from .base_classes import EffectsDict
 effects = EffectsDict()
 
 
-@effects.effect_to_dict
+@effects.append
 class BuffExample:
 
     __ename__ = "Название Бафф"
@@ -11,6 +11,7 @@ class BuffExample:
     __fluttering__ = False
     __event__ = False
     __duration__ = 0
+    __eindex__ = -1
     __type__ = "buff"
     __synergy__ = """Синергии"""
 

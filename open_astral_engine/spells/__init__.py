@@ -11,14 +11,14 @@ spells.update(level1_def_spells.copy())
 
 class Level0Skip:
     __sname__ = "Пропуск хода"
-    __description__ = """Пропуск хода"""
+    __description__ = "Пропуск хода"
     __number__ = "х"
     __level__ = 1
     __priority__ = 0
     __distribution_type__ = ""
     __type__ = ("directed", "ally")
     __mp__ = 0
-    __synergy__ = """"""
+    __synergy__ = ""
 
     def __init__(self, game, player):
         self.game = game
@@ -29,7 +29,7 @@ class Level0Skip:
 
 
 def get_player_spells_dict(game, player_class) -> SpellsDict:
-    player: SpellsDict = spells.copy_as_spellclass()
+    player: SpellsDict = spells.copy()
     player.game = game
     player.player = player_class
     player.convert_to_player()

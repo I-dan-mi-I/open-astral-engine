@@ -3,7 +3,7 @@ from .base_classes import SpellsDict
 spells = SpellsDict()
 
 
-@spells.spell_to_dict
+@spells.append
 class Level1Attack11:
 
     __sname__ = "Огненная стрела"
@@ -14,6 +14,7 @@ class Level1Attack11:
     __distribution_type__ = "a"
     __type__ = ("directed", "enemy")
     __mp__ = 3
+    __mp_loss__ = __mp__
     __synergy__ = """Эффект Ядовитый плевок
     
 1. В сочетании с эффектом "Теневой клинок" (Эффект на кастере)  - усиливает клинки ядом (накладывает на цель 1 тик "Ядовитый плевок" -3хп на след раунд)                                                             
@@ -62,6 +63,7 @@ class Level1Attack11:
             target.effects.give_effect("Горение✶2", 1)
 
         target.main_damage = arrow_damage
+        self.player.mp_loss = self.__mp_loss__
 
         if list(set(target_effects) & {"Каменный еж", "Огонек", "Висп"}) and arrow_damage != 0:
             counter_move = target.spells.all_spells['11'](self.game, target)
